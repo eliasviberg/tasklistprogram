@@ -14,10 +14,11 @@ class TaskList():
         print("Du har lagt till {} i {}!".format(description, self.name))
 
     def mark_done(self, task_id):
-        for current_task in self.task_list:
-            if int(task_id) == current_task.task_id:
-                current_task.mark_done()
-                return True
+        if task_id.isnumeric():
+            for current_task in self.task_list:
+                if int(task_id) == current_task.task_id:
+                    current_task.mark_done()
+                    return True
         return False
 
     def __str__(self):
@@ -28,4 +29,3 @@ class TaskList():
             task_print += (str(task) + "\n")
         return task_print
         
-
