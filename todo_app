@@ -1,0 +1,132 @@
+import task
+import task_list
+import os
+
+class TodoApp():
+
+    def __init__(self):
+        self.commands = {
+            "?": "Hjälp - används för att visa listan av kommando",
+            "q": "Avsluta - avslutar programmet",
+            "add": "Lägg till - Lägger till en uppgift",
+            "tasks": "Uppgifter - visar kommandon",
+            "finish": "Avsluta - avslutar en uppgift",
+            "change": "Ändra - Ändra vilken tasklist du vill arbeta med",
+            "add_list": "Lägg till - Lägger till en uppgiftslista",
+            "show_lists": "Visa listor - visar alla uppgiftslistor"}
+
+        self.loop = True
+
+        self.tasklists = []
+        current_tasklist = None
+        self.main()
+        pass
+
+    def show_commands(self):
+        for command, command_description in self.commands.items():
+            print(" " + command + ": " + command_description)
+        
+    def add_tasklist(self):
+        name = input("Ange namn på ny uppgiftslista: ")
+        if bool(self.get_tasklist(name)):
+            return("ERROR!! uppgiftslistan finns redan!!")
+        self.tasklists.append(task_list.TaskList(name))
+        self.open_tasklist(name)
+        return("{} har lagts till!!".format(name))
+
+    def get_tasklist(self, name):
+        for tasklist in self.tasklists:
+            if name == tasklist.name:
+                return tasklist
+        return None
+
+    def show_tasklists(self):
+        for tasklist in self.tasklists:
+            print(tasklist.name)
+
+    def open_tasklist(self, name):
+        self.current_tasklist = self.get_tasklist(name)
+        
+    def change_tasklist(self):
+        self.show_tasklists()
+        name = input("Ange namnet på listan du vill byta till: ")
+        if bool(self.get_tasklist(name)):
+            self.open_tasklist(name)
+            return "Du har ändrar lista till {}!".format(name)
+        return "AJ! listan finns ej!"
+
+    def new_task(self):
+        description = input("Ange beskrivning: ")
+        self.current_tasklist.create_task(description)
+
+    def show_tasks(self):
+        print(self.current_tasklist)
+
+    def mark_done(self):
+        print("Ange uppgift ID't")
+        self.show_tasks()
+
+        task_id = input("ID: ")
+        if self.current_tasklist.mark_done(task_id):
+            self.show_tasks()
+            return "uppgiften är klar"
+        return "Denna uppgift finns inte!! Försök igen."
+
+
+    def command_is_valid(self, user_command):
+        for command in self.commands.keys():
+            if user_command == command:
+                return True
+        return False
+
+    def tasklist_is_defined(self):
+        if len(self.tasklists) > 0:
+            return True
+        return False
+
+    def quit(self):
+        self.loop = False
+
+    def enter_command(self, user_command):
+        if self.command_is_valid(user_command):
+            command_keys = list(self.commands.keys())
+            # Visar kommandon om kommanden är hälp
+            if user_command == command_keys[0]:
+                self.show_commands()
+            # Avslutar programmet
+            if user_command == command_keys[1]:
+                self.quit()
+            # Skapar en ny uppgift
+            if user_command == command_keys[2]:
+                self.new_task()
+            # Visar uppgifterna
+            if user_command == command_keys[3]:
+                self.show_tasks()
+            # Markerar en uppgift som klar
+            if user_command == command_keys[4]:
+                print(self.mark_done())
+            # Ändrar uppgiftslista
+            if user_command == command_keys[5]:
+                print(self.change_tasklist())
+            # Lägger till en uppgiftslista
+            if user_command == command_keys[6]:
+                self.add_tasklist()
+            # Visar alla listor
+            if user_command == command_keys[7]:
+                self.show_tasklists()
+            
+        else:
+            print("ERROR! the command '{}' does not exist!!".format(user_command))
+
+
+    def main(self):
+        while self.loop:
+            os.system('cls' if os.name == 'nt' else 'clear')
+            if self.tasklist_is_defined():
+                print("Välkommen! Du befinner dig i listan {}".format(self.current_tasklist.name))
+                self.enter_command(input("Ange kommando (q=avsluta, ?=hjälp): "))
+            else:
+                print("Välkommen, det finns inga uppgiftslistor!")
+                print(self.add_tasklist())
+            input()
+        exit()
